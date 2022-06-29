@@ -19,9 +19,12 @@ import { AuthContext } from './constants/Context';
 const Stack = createNativeStackNavigator();
 
 function MyStack({ userToken }) {
+
+  const [page, setPage] = useState();
+  // userToken === undefined ? setPage("Menu"):setPage("signIn");
   return (
     <Stack.Navigator
-      initialRouteName="Signin"
+      initialRouteName="signIns"
       screenOptions={{
         headerStyle: {
           backgroundColor: "#339933",
@@ -40,7 +43,7 @@ function MyStack({ userToken }) {
       <Stack.Screen
         name="signUp"
         component={Signup}
-        options={{ title: "Signup" ,headerShown: false }}
+        options={{ title: "Signup", headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -74,14 +77,14 @@ function App() {
         return {
           ...preState,
           userName: null,
-          userToken: null,
+          userToken: "login",
           isLoading: false,
         };
-      case "REGISTER":
+      case "HOME":
         return {
           ...preState,
-          userName: action.id,
-          userToken: action.token,
+          userName: null,
+          userToken: null,
           isLoading: false,
         };
     }
@@ -121,8 +124,14 @@ function App() {
       }
       dispatch({ type: "LOGOUT" });
     },
-    signUp: () => {
+    home: async () => {
       // setUserToken("fgkj");
+      try {
+        await AsyncStorage.removeItem("userToken");
+      } catch (e) {
+        console.log(e);
+      }
+      dispatch({ type: "HOME" });
       // setIsLoading(false);
     },
     setUserID: (input) => {
@@ -148,13 +157,13 @@ function App() {
 
   if (loginState.isLoading) {
     return (
-      <Loadpage/>
+      <Loadpage />
     );
   }
-  console.log("userToken = " + loginState.userToken);
+  console.log("userToken => " + loginState.userToken);
   return (
     <AuthContext.Provider value={authContext}>
-      {loginState.userToken != null ? (
+      {loginState.userToken != "login" ? (
         <Menu userId={userId} />
       ) : (
         <NavigationContainer>

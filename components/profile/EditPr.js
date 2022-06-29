@@ -120,7 +120,7 @@ const EditPr = ({ route, navigation }) => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert("เกิดข้อผิดพลาด", "กรุณาอนุญาติให้เข้าภึงแผนที่", [
-        { text: "OK" },
+        { text: "OK", onPress: () =>setIsLoading_log(true)},
       ]);
       return;
     }

@@ -40,7 +40,8 @@ const Signin = ({ route, navigate, navigation }) => {
   const [passWord, setPassWord] = useState('');
   const [isLoading_log, setIsLoading_log] = useState(true);
 
-  const { signIn, setUserID } = useContext(AuthContext);
+  const { signIn, setUserID, home } = useContext(AuthContext);
+
   console.log("windowWidth", windowWidth)
   console.log("windowHeight", windowHeight)
 
@@ -70,7 +71,12 @@ const Signin = ({ route, navigate, navigation }) => {
         .then((data) => {
           if (data[0].login == 'nok') {
             Alert.alert('เกิดข้อผิดพลาด', 'รหัสผ่านไม่ถูกต้อง', [
-              { text: 'OK', onPress: () => setIsLoading_log(true) },
+              {
+                text: 'OK', onPress: () => {
+                  setIsLoading_log(true);
+                  home()
+                }
+              },
             ]);
           } else {
             console.log('userid = login ' + userid);
@@ -102,7 +108,18 @@ const Signin = ({ route, navigate, navigation }) => {
   }
   return (
     <ThemeProvider theme={theme}>
+
       <View style={styles.head}>
+        <View style={{ position: "absolute", left: 20, top: 40 }}>
+          <Icon
+            name="arrow-left"
+            size={25}
+            color="#fff"
+            onPress={() => {
+              home()
+            }}
+          />
+        </View>
         <Icon name="lock" size={18} color="#fff" />
         <Text
           style={{

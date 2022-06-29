@@ -29,12 +29,12 @@ var paddingT = 30
 // 8
 if (windowHeight <= 670) {
   boxH = 70
-  paddingT =5
+  paddingT = 5
 }
 // 8+
 if (windowHeight <= 740 && windowHeight >= 669) {
   boxH = 70
-  paddingT =5
+  paddingT = 5
 }
 // 12 mini
 if (windowHeight <= 815 && windowHeight >= 739) {
@@ -63,7 +63,8 @@ const Cart = ({ route, navigation }) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      getData()
+
+      itemId === null ? undefined : getData()
     });
     return unsubscribe;
   }, [navigation]);
@@ -147,7 +148,7 @@ const Cart = ({ route, navigation }) => {
 
         inAmount(a, b, Number(c), price_grade);
       }
-    }, 1000);
+    }, 100);
   };
   // console.log("countx = " + countx);
 
@@ -202,17 +203,47 @@ const Cart = ({ route, navigation }) => {
     await axios.put(api + "/upamountproduct", {
       product_id: id,
       pro_req_id: rid,
+    }).then(res => {
+      console.log("pro_req_id", rid)
+      console.log("productId", id)
+      console.log("upAmount", res.data)
     });
   };
-  const downAmount = async (id, rid) => {
+  const downAmount = async (id, rid, index) => {
     await axios.put(api + "/downamountproduct", {
       product_id: id,
       pro_req_id: rid,
-    });
+    }).then(res => {
+      console.log("pro_req_id", rid)
+      console.log("productId", id)
+      console.log("downAmount", res.data.result)
+      if (res.data.result == "false") {
+
+        Alert.alert(`สินค้ามีไม่เพียงพอ`, `ไม่สามารภเพิ่มสินค้าตามจำนวนได้`, [
+          {
+            text: "ยืน",
+            onPress: () => {
+              setFilteredDataSource(
+                Object.values({
+                  ...filteredDataSource,
+                  [index]: {
+                    ...filteredDataSource[index],
+                    pro_req_amount:
+                      parseFloat(filteredDataSource[index].pro_req_amount),
+                  },
+                })
+              );
+            },
+            style: "cancel",
+          },
+        ]);
+      }
+    });;
   };
 
   const deleteItem = async (Input, amount, proId) => {
     console.log(Input + " = " + filteredDataSource.length + " -> length");
+    console.log("amount", amount);
 
     Alert.alert(`ลบสินค้า`, "ยืนยันที่จะลบรายการสินค้านี้", [
       {
@@ -346,7 +377,8 @@ const Cart = ({ route, navigation }) => {
                   size={25}
                   color="#308d05"
                   onPress={(text) => {
-                    if (filteredDataSource[index].pro_req_amount > 0.99) {
+                    if (filteredDataSource[index].pro_req_amount >= 0.99) {
+                      console.log("up")
                       upAmount(item.product_id, item.pro_req_id);
                       setFilteredDataSource(
                         Object.values({
@@ -364,38 +396,21 @@ const Cart = ({ route, navigation }) => {
                   }}
                 />
 
-                <TextInput
-                  onChangeText={(text) => {
-                    setFilteredDataSource(
-                      Object.values({
-                        ...filteredDataSource,
-                        [index]: {
-                          ...filteredDataSource[index],
-                          pro_req_amount: text,
-                        },
-                      })
-                    );
-                    oncheng(item.product_id, item.pro_req_id, text, index);
-                  }}
-                  maxLength={6}
-                  keyboardType="number-pad"
-                  value={String(filteredDataSource[index].pro_req_amount)}
-                  style={{
-                    // width: 25,
-                    maxWidth: 60,
-                    fontSize: 20,
-                    color: "#000000",
-                    textAlign: "center",
-                    marginLeft: 10,
-                    marginRight: 10,
-                  }}
-                />
+                <Text style={{
+                  // width: 25,
+                  maxWidth: 60,
+                  fontSize: 20,
+                  color: "#000000",
+                  textAlign: "center",
+                  marginLeft: 10,
+                  marginRight: 10,
+                }}> {String(filteredDataSource[index].pro_req_amount)}</Text>
                 <Icon
                   name="plus-circle"
                   size={25}
                   color="#308d05"
                   onPress={(text) => {
-                    downAmount(item.product_id, item.pro_req_id);
+                    downAmount(item.product_id, item.pro_req_id, index);
                     setFilteredDataSource(
                       Object.values({
                         ...filteredDataSource,
@@ -420,13 +435,10 @@ const Cart = ({ route, navigation }) => {
     if (datauser == "D") {
       return orderItem(item.price_sell_D);
     } else if (datauser == "C") {
-      console.log("C");
       return orderItem(item.price_sell_C);
     } else if (datauser == "B") {
-      console.log("B");
       return orderItem(item.price_sell_B);
     } else if (datauser == "A") {
-      console.log("A");
       return orderItem(item.price_sell_A);
     }
   };
@@ -490,6 +502,9 @@ const Cart = ({ route, navigation }) => {
             <View
               style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
             >
+              <Text style={{ fontSize: 18, marginBottom: 10, color: '#339933' }}>
+                กรุณาเข้าสู่ระบบ
+              </Text>
               <ActivityIndicator size="large" color="#00ff00" />
             </View>
           ) : (
@@ -534,10 +549,15 @@ const Cart = ({ route, navigation }) => {
           titleStyle={{ fontSize: 14 }}
           buttonStyle={{ backgroundColor: "#32661a", paddingRight: 10 }}
           onPress={() => {
-            saveOrder(
-              filteredDataSource[0].bill_id,
-              numberWithCommas(countx)
-            );
+            itemId == null ?
+              Alert.alert("เลือกรายการสินค้า", "กรุณาเข้าสู่ระบบเพื่อเลือกซื้อสิ้นค้า", [
+                { text: "ยืนยัน", onPress: () => signOut() },
+                { text: "ยกเลิก" },
+              ]) :
+              saveOrder(
+                filteredDataSource[0].bill_id,
+                numberWithCommas(countx)
+              );
           }}
         />
       </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useContext} from "react";
 
 import {
   SafeAreaView,
@@ -13,6 +13,7 @@ import {
   Alert,
 } from "react-native";
 
+import { AuthContext } from "../../constants/Context";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { api, noImg, logoImage, productImg } from "../../constants/Api";
 import axios from "axios";
@@ -52,6 +53,7 @@ if (windowHeight <= 1000 && windowHeight >= 849) {
 const Home = ({ route, navigation }) => {
 
 
+  const { signOut } = useContext(AuthContext);
 
   const { itemId } = route.params;
   const [isLoading, setIsLoading] = useState(true);
@@ -70,9 +72,11 @@ const Home = ({ route, navigation }) => {
 
   const getData = () => {
     setSearch("");
-    axios.get(api + "/user/" + itemId).then((result) => {
+    itemId === null ? setDatauser(null) : axios.get(api + "/user/" + itemId).then((result) => {
       setDatauser(result.data[0].data[0].user_grade);
     });
+
+
     fetch(api + "/producthome")
       .then((response) => response.json())
       .then((responseJson) => {
@@ -83,6 +87,7 @@ const Home = ({ route, navigation }) => {
       .catch((error) => {
         console.error(error);
       });
+
   }
 
   const searchFilterFunction = (text) => {
@@ -154,12 +159,16 @@ const Home = ({ route, navigation }) => {
                   size={35}
                   color="#029c0f"
                   onPress={() => {
-                    seletedata(
-                      item.product_name,
-                      item.product_id,
-                      item.price_id,
-                      item.product_amount
-                    );
+                    datauser !== null ?
+                      seletedata(
+                        item.product_name,
+                        item.product_id,
+                        item.price_id,
+                        item.product_amount
+                      ) : Alert.alert("เลือกรายการสินค้า", "กรุณาเข้าสู่ระบบเพื่อเลือกซื้อสิ้นค้า", [
+                        { text: "ยืนยัน", onPress: () => signOut() },
+                        { text: "ยกเลิก" },
+                      ])
                   }}
                 />
               </View>
@@ -173,7 +182,7 @@ const Home = ({ route, navigation }) => {
               }}
             >
               คงเหลือ{" "}
-              {item.product_amount == null || item.product_amount == 0 ? (
+              {item.product_amount == null || item.product_amount <= 0 ? (
                 <Text style={{ color: "#750e0b" }}> สินค้าหมด</Text>
               ) : (
                 item.product_amount
@@ -197,7 +206,7 @@ const Home = ({ route, navigation }) => {
         </View>
       );
     };
-    if (datauser == "D") {
+    if (datauser == "D" || datauser == null) {
       return box(item.price_sell_D);
     } else if (datauser == "C") {
       console.log("C");

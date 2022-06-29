@@ -28,12 +28,12 @@ var paddingT = 30
 // 8
 if (windowHeight <= 670) {
   boxH = 70
-  paddingT =10
+  paddingT = 10
 }
 // 8+
 if (windowHeight <= 740 && windowHeight >= 669) {
   boxH = 70
-  paddingT =10
+  paddingT = 10
 }
 // 12 mini
 if (windowHeight <= 815 && windowHeight >= 739) {
@@ -55,28 +55,22 @@ const Order = ({ route, navigation }) => {
   const [distance, setDistance] = useState([]);
 
 
-
+  console.log("itemId - order = ", itemId)
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      getData()
+      itemId === null ? undefined : getData()
     });
     return unsubscribe;
   }, [navigation]);
 
 
   const getData = () => {
-    fetch(api + "/historyorder/" + itemId)
-      .then((response) => response.json())
-      .then((responseJson) => {
-        setFilteredDataSource(responseJson);
-      })
-      .then(() => {
-        setIsLoading(false);
-      })
-      .then(() => {
-        setIsLoading(false);
-      })
-      .catch((error) => { });
+    console.log("getdata")
+    axios.get(api + "/historyorder/" + itemId).then(res => {
+      console.log(res.data)
+      setFilteredDataSource(res.data);
+      setIsLoading(false);
+    })
   }
 
   const ItemView = ({ item, index }) => {
@@ -189,32 +183,32 @@ const Order = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-        <View style={styles.boxSearch}>
-          <View
+      <View style={styles.boxSearch}>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <Icon
+            name="inbox"
+            size={20}
+            color="#fff"
+          />
+          <Text
             style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
+              fontSize: 20,
+              color: "#fff",
+              marginLeft: 10,
             }}
           >
-            <Icon
-              name="inbox"
-              size={20}
-              color="#fff"
-            />
-            <Text
-              style={{
-                fontSize: 20,
-                color: "#fff",
-                marginLeft: 10,
-              }}
-            >
-              ออเดอร์ 10 รายการล่าสุด
-            </Text>
-          </View>
+            ออเดอร์ 10 รายการล่าสุด
+          </Text>
         </View>
+      </View>
       <SafeAreaView style={{ flex: 1 }}>
-      
+
         <View style={styles.container}>
           {isLoading ? (
             <View

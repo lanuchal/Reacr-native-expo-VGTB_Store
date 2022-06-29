@@ -24,15 +24,15 @@ import * as ImagePicker from 'expo-image-picker';
 import { Dimensions } from 'react-native';
 const windowHeight = Dimensions.get('window').height;
 var paddingT = 40
-var fMember =16;
+var fMember = 16;
 // 8
 if (windowHeight <= 670) {
-  paddingT =20
+  paddingT = 20
   fMember = 14
 }
 // 8+
 if (windowHeight <= 740 && windowHeight >= 669) {
-  paddingT =20
+  paddingT = 20
 }
 if (windowHeight <= 815 && windowHeight >= 739) {
   fMember = 14
@@ -44,14 +44,15 @@ if (windowHeight <= 850 && windowHeight >= 814) {
 
 
 const Profile = ({ route, navigation }) => {
-  const [storeName, setStoreName] = useState("");
-  const [userName, setUserName] = useState("");
-  const [address, setAddress] = useState("");
-  const [tel, setTel] = useState("");
-  const [regisDate, setRegisDate] = useState("");
-  const [distance, setDistance] = useState("");
-  const [img1, setImg1] = useState();
-  const [img2, setImg2] = useState();
+  const noData = "ยังไม่มีข้อมูล"
+  const [storeName, setStoreName] = useState(noData);
+  const [userName, setUserName] = useState(noData);
+  const [address, setAddress] = useState(noData);
+  const [tel, setTel] = useState(noData);
+  const [regisDate, setRegisDate] = useState(noData);
+  const [distance, setDistance] = useState(noData);
+  const [img1, setImg1] = useState(String(noImg));
+  const [img2, setImg2] = useState(String(noImg));
 
 
   const { itemId } = route.params;
@@ -60,7 +61,8 @@ const Profile = ({ route, navigation }) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       console.log("get new data for profile")
-      reqData()
+      itemId === null ? undefined : reqData()
+
     });
     return unsubscribe;
   }, [navigation]);
@@ -332,7 +334,12 @@ const Profile = ({ route, navigation }) => {
             buttonStyle={{ backgroundColor: "#1ab16a", fontSize: 10 }}
             onPress={() => {
               console.log("edit");
-              navigation.navigate("EditPr");
+              itemId === null ?
+                Alert.alert("เลือกรายการสินค้า", "กรุณาเข้าสู่ระบบเพื่อเลือกซื้อสิ้นค้า", [
+                  { text: "ยืนยัน", onPress: () => signOut() },
+                  { text: "ยกเลิก" },
+                ]) :
+                navigation.navigate("EditPr");
             }}
           />
           <Button
@@ -347,7 +354,12 @@ const Profile = ({ route, navigation }) => {
             buttonStyle={{ backgroundColor: "#ca6009", fontSize: 10 }}
             onPress={() => {
               console.log("EditPass");
-              navigation.navigate("EditPass")
+              itemId === null ?
+                Alert.alert("เลือกรายการสินค้า", "กรุณาเข้าสู่ระบบเพื่อเลือกซื้อสิ้นค้า", [
+                  { text: "ยืนยัน", onPress: () => signOut() },
+                  { text: "ยกเลิก" },
+                ]) :
+                navigation.navigate("EditPass")
             }}
           />
         </View>
@@ -389,7 +401,12 @@ const Profile = ({ route, navigation }) => {
             buttonStyle={{ backgroundColor: "#967f00", fontSize: 10 }}
             onPress={() => {
               console.log("edit");
-              selectMedia("upload1", "profile1")
+              itemId === null ?
+                Alert.alert("เลือกรายการสินค้า", "กรุณาเข้าสู่ระบบเพื่อเลือกซื้อสิ้นค้า", [
+                  { text: "ยืนยัน", onPress: () => signOut() },
+                  { text: "ยกเลิก" },
+                ]) :
+                selectMedia("upload1", "profile1")
             }}
           />
         </View>
@@ -431,26 +448,32 @@ const Profile = ({ route, navigation }) => {
             buttonStyle={{ backgroundColor: "#967f00", fontSize: 10 }}
             onPress={() => {
               console.log("edit");
-              selectMedia("upload2", "profile2")
+              itemId === null ?
+                Alert.alert("เลือกรายการสินค้า", "กรุณาเข้าสู่ระบบเพื่อเลือกซื้อสิ้นค้า", [
+                  { text: "ยืนยัน", onPress: () => signOut() },
+                  { text: "ยกเลิก" },
+                ]) :
+                selectMedia("upload2", "profile2")
             }}
           />
         </View>
 
         <View style={stylesPr.boxTitle}>
           <Button
-            icon={<Icon name="sign-out" size={18} color="#fff" />}
-            title="  ออกจากระบบ"
+            icon={<Icon name={itemId == null ? "sign-in" : "sign-out"} size={18} color="#fff" />}
+            title={itemId === null ? " เข้าสู่ระบบ" : "  ออกจากระบบ"}
             containerStyle={{
               width: "100%",
               height: 40,
               fontSize: 10,
             }}
-            buttonStyle={{ backgroundColor: "#585858", fontSize: 10 }}
+            buttonStyle={{ backgroundColor: itemId === null ? "#339933" : "#585858", fontSize: 10 }}
             onPress={() => {
-              Alert.alert("ออกจากระบบ", "ยืนยันออกจากระบบ", [
-                { text: "ยืนยัน", onPress: () => signOut() },
-                { text: "ยกเลิก" },
-              ]);
+              itemId === null ? signOut() :
+                Alert.alert("ออกจากระบบ", "ยืนยันออกจากระบบ", [
+                  { text: "ยืนยัน", onPress: () => signOut() },
+                  { text: "ยกเลิก" },
+                ]);
               console.log("logout");
             }}
           />

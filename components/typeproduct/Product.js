@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useContext} from "react";
 
 import {
     SafeAreaView,
@@ -17,6 +17,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { api, noImg, logoImage, productImg } from "../../constants/Api";
 import axios from "axios";
 
+import { AuthContext } from "../../constants/Context";
 import { Dimensions } from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
@@ -30,35 +31,36 @@ var backType = -45;
 
 
 if (windowHeight <= 670) {
-  viewH = 590
-  searchH = 75;
-  boXSearchH = 100
-  backType = -35
+    viewH = 590
+    searchH = 75;
+    boXSearchH = 100
+    backType = -35
 }
 // 8+
 if (windowHeight <= 740 && windowHeight >= 669) {
-  viewH = 660
-  searchH = 75;
-  boXSearchH = 100
+    viewH = 660
+    searchH = 75;
+    boXSearchH = 100
 }
 // 12 mini
 if (windowHeight <= 815 && windowHeight >= 739) {
-  viewH = 685
-  backType = -35
+    viewH = 685
+    backType = -35
 }
 // 12
 if (windowHeight <= 850 && windowHeight >= 814) {
-  viewH = 710
-  backType = -40
+    viewH = 710
+    backType = -40
 }
 if (windowHeight <= 1000 && windowHeight >= 849) {
-  viewH = 800
+    viewH = 800
 }
 
 const Product = ({ route, navigation }) => {
     const { typeID, typeName, itemId } = route.params;
 
-    typeName
+    const { signOut } = useContext(AuthContext);
+    
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [filteredDataSource, setFilteredDataSource] = useState([]);
@@ -73,9 +75,11 @@ const Product = ({ route, navigation }) => {
     }, [navigation]);
 
     const getData = () => {
-        axios.get(api + "/user/" + itemId).then((result) => {
+
+        itemId === null ? setDatauser(null) : axios.get(api + "/user/" + itemId).then((result) => {
             setDatauser(result.data[0].data[0].user_grade);
         });
+
         fetch(api + "/productcate/" + typeID)
             .then((response) => response.json())
             .then((responseJson) => {
@@ -142,7 +146,7 @@ const Product = ({ route, navigation }) => {
                                 position: "relative",
                             }}
                         >
-                            <Text style={styles.itemStyle} onPress={() => getItem(item)}>
+                            <Text style={styles.itemStyle}>
                                 {item.product_name.toUpperCase()}{" "}
                             </Text>
                             <View
@@ -158,13 +162,19 @@ const Product = ({ route, navigation }) => {
                                     size={35}
                                     color="#029c0f"
                                     onPress={() => {
-                                        seletedata(
-                                            item.product_name,
-                                            item.product_id,
-                                            item.price_id,
-                                            item.product_amount
-                                        );
+                                        datauser !== null ?
+                                            seletedata(
+                                                item.product_name,
+                                                item.product_id,
+                                                item.price_id,
+                                                item.product_amount
+                                            ) : Alert.alert("เลือกรายการสินค้า", "กรุณาเข้าสู่ระบบเพื่อเลือกซื้อสิ้นค้า", [
+                                                { text: "ยืนยัน", onPress: () => signOut() },
+                                                { text: "ยกเลิก" },
+                                            ])
                                     }}
+
+
                                 />
                             </View>
                         </View>
@@ -177,7 +187,7 @@ const Product = ({ route, navigation }) => {
                             }}
                         >
                             คงเหลือ{" "}
-                            {item.product_amount == null || item.product_amount == 0 ? (
+                            {item.product_amount == null || item.product_amount <= 0 ? (
                                 <Text style={{ color: "#750e0b" }}> สินค้าหมด</Text>
                             ) : (
                                 item.product_amount
@@ -201,7 +211,7 @@ const Product = ({ route, navigation }) => {
                 </View>
             );
         };
-        if (datauser == "D") {
+        if (datauser === "D" || datauser === null) {
             return box(item.price_sell_D);
         } else if (datauser == "C") {
             console.log("C");
@@ -215,10 +225,6 @@ const Product = ({ route, navigation }) => {
         }
     };
 
-
-    const getItem = (item) => {
-        alert("Id : " + item.id + " Title : " + item.title);
-    };
 
     const seletedata = async (proname, product_id, price_id, amount) => {
         var grade = "D";

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "vgtb",
-    "slug": "vgtb",
-    "version": "1.0.0",
+    "name": "Vegetable Store",
+    "slug": "VegetableStore",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,22 +18,30 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vegetable.store",
+      "infoPlist": {
+        "NSLocationAlwaysUsageDescription": "VegetableStore use location for request latitude and longitude",
+        "NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
+        "NSLocationWhenInUseUsageDescription":"Allow request latitude and longitude for calculate distance"
+      },
+      "buildNumber": "7"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.png"
     },
     "plugins": [
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "isAccessMediaLocationEnabled": true
         }
       ]
     ]
